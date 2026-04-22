@@ -4,15 +4,22 @@ import PropertiesClient from "./PropertiesClient";
 export default async function PropertiesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ region?: string; q?: string }>;
+  searchParams: Promise<{ tab?: string; region?: string; q?: string }>;
 }) {
-  const { region, q } = await searchParams;
+  const { tab, region, q } = await searchParams;
   const supabase = await createClient();
 
-  let query = supabase.from("listings").select("*").order("created_at", { ascending: false });
-  if (region) query = query.eq("region", region);
+  const [{ data: listings }, { data: resale }] = await Promise.all([
+    supabase.from("listings").select("*").order("created_at", { ascending: false }),
+    supabase.from("resale_units").select("*").order("created_at", { ascending: false }),
+  ]);
 
-  const { data: listings } = await query;
-
-  return <PropertiesClient listings={listings ?? []} initialRegion={region} />;
+  return (
+    <PropertiesClient
+      listings={listings ?? []}
+      resaleUnits={resale ?? []}
+      initialTab={tab === "resale" ? "resale" : "listings"}
+      initialRegion={region}
+    />
+  );
 }

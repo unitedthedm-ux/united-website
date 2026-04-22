@@ -1,12 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import ResaleClient from "./ResaleClient";
+import { redirect } from "next/navigation";
 
-export default async function ResalePage() {
-  const supabase = await createClient();
-  const { data: units } = await supabase
-    .from("resale_units")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  return <ResaleClient units={units ?? []} />;
+export default function ResalePage() {
+  redirect("/properties?tab=resale");
 }
