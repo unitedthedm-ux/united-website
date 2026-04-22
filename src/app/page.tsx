@@ -8,7 +8,7 @@ export default async function HomePage() {
     await Promise.all([
       supabase
         .from("listings")
-        .select("*")
+        .select("*, team_members(id, name, whatsapp_number, phone_number)")
         .eq("is_featured", true)
         .order("created_at", { ascending: false })
         .limit(6),

@@ -6,19 +6,27 @@ function guard(req: NextRequest) {
   return isAdminAuthenticatedFromHeader(req.headers.get("cookie"));
 }
 
-export async function GET(req: NextRequest) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!guard(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { id } = await params;
+  const body = await req.json();
   const db = createAdminClient();
-  const { data, error } = await db.from("listings").select("*, team_members(id, name, whatsapp_number, phone_number)").order("sort_order").order("created_at", { ascending: false });
+
+  // If marking as default, unset all others first
+  if (body.is_default) {
+    await db.from("team_members").update({ is_default: false }).neq("id", id);
+  }
+
+  const { data, error } = await db.from("team_members").update(body).eq("id", id).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
 
-export async function POST(req: NextRequest) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!guard(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const body = await req.json();
+  const { id } = await params;
   const db = createAdminClient();
-  const { data, error } = await db.from("listings").insert(body).select().single();
+  const { error } = await db.from("team_members").delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  return NextResponse.json({ ok: true });
 }

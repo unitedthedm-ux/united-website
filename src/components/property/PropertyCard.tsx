@@ -28,7 +28,9 @@ export default function PropertyCard({
   const images = listing.images?.length ? listing.images : [];
   const [idx, setIdx] = useState(0);
 
-  const wa = listing.whatsapp_number ?? "201000000000";
+  const agent = listing.team_members;
+  const wa = agent?.whatsapp_number ?? listing.whatsapp_number ?? "201000000000";
+  const callNum = agent?.phone_number ?? agent?.whatsapp_number ?? listing.whatsapp_number ?? "201000000000";
   const waMsg = encodeURIComponent(
     locale === "ar" ? `مهتم بـ: ${title}` : `Interested in: ${title}`
   );
@@ -227,7 +229,7 @@ export default function PropertyCard({
             WhatsApp
           </a>
           <a
-            href={`tel:+${wa}`}
+            href={`tel:+${callNum}`}
             className="flex items-center justify-center gap-2 w-full rounded-xl border border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366]/10 text-xs font-bold py-2.5 transition-colors"
           >
             <Phone size={13} />

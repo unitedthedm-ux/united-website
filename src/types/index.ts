@@ -1,3 +1,13 @@
+export interface TeamMember {
+  id: string;
+  name: string;
+  whatsapp_number: string;
+  phone_number?: string;
+  role: "agent" | "admin";
+  is_default: boolean;
+  created_at: string;
+}
+
 export interface Listing {
   id: string;
   title_en: string;
@@ -23,7 +33,9 @@ export interface Listing {
   show_monthly: boolean;
   show_full_price: boolean;
   is_featured: boolean;
-  whatsapp_number?: string;
+  whatsapp_number?: string; // legacy — prefer agent_id
+  agent_id?: string;
+  team_members?: Pick<TeamMember, "id" | "name" | "whatsapp_number" | "phone_number"> | null;
   listing_type?: "from-developer" | "resale"; // "from-developer" = new unit, "resale" = secondary market
   created_at: string;
 }

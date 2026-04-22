@@ -10,7 +10,7 @@ export default async function PropertiesPage({
   const supabase = await createClient();
 
   const [{ data: listings }, { data: resale }] = await Promise.all([
-    supabase.from("listings").select("*").order("created_at", { ascending: false }),
+    supabase.from("listings").select("*, team_members(id, name, whatsapp_number, phone_number)").order("created_at", { ascending: false }),
     supabase.from("resale_units").select("*").order("created_at", { ascending: false }),
   ]);
 

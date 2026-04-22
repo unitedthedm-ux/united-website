@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, User } from "lucide-react";
 import ImageUploader from "@/components/admin/ImageUploader";
 import LocationPicker from "@/components/admin/LocationPicker";
-import type { Listing } from "@/types";
+import type { Listing, TeamMember } from "@/types";
 
 export const LISTING_BLANK: Partial<Listing> = {
   title_en: "", title_ar: "", description_en: "", description_ar: "",
@@ -16,7 +16,7 @@ export const LISTING_BLANK: Partial<Listing> = {
   images: [],
   show_price: true, show_downpayment: true, show_monthly: true,
   show_full_price: false, is_featured: false,
-  whatsapp_number: "",
+  agent_id: undefined,
   listing_type: "from-developer",
 };
 
@@ -33,6 +33,22 @@ export default function ListingForm({ initial, mode }: Props) {
   const [form, setForm] = useState<Partial<Listing>>(initial ?? LISTING_BLANK);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [agents, setAgents] = useState<TeamMember[]>([]);
+
+  // Load team members for agent selector
+  useEffect(() => {
+    fetch("/api/admin/team")
+      .then((r) => r.ok ? r.json() : [])
+      .then((data: TeamMember[]) => {
+        setAgents(data);
+        // On create mode, auto-select default agent if no agent set yet
+        if (mode === "create" && !form.agent_id) {
+          const def = data.find((m) => m.is_default);
+          if (def) setForm((f) => ({ ...f, agent_id: def.id }));
+        }
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function set<K extends keyof Listing>(key: K, value: Listing[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -88,6 +104,8 @@ export default function ListingForm({ initial, mode }: Props) {
     }
     setSaving(false);
   }
+
+  const selectedAgent = agents.find((a) => a.id === form.agent_id);
 
   return (
     <div className="max-w-3xl mx-auto pb-16">
@@ -166,9 +184,52 @@ export default function ListingForm({ initial, mode }: Props) {
             {field("title_ar", "Title (Arabic) *", "text", "مثال: شقة فاخرة في العاصمة الإدارية")}
             {field("description_en", "Description (EN)", "text", "Short description...")}
             {field("description_ar", "Description (AR)", "text", "وصف قصير...")}
-            {field("whatsapp_number", "WhatsApp Number", "text", "201xxxxxxxxx")}
             {field("delivery_year", "Delivery Year", "number", "2026")}
           </div>
+        </section>
+
+        {/* ── Agent ── */}
+        <section className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="text-sm font-semibold text-[#a4c8e0] uppercase tracking-widest mb-4">Assigned Agent</h2>
+          {agents.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No team members yet.{" "}
+              <a href="/admin/team" className="text-[#a4c8e0] hover:underline">Add team members first →</a>
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {agents.map((agent) => (
+                <button
+                  key={agent.id}
+                  type="button"
+                  onClick={() => set("agent_id", agent.id as never)}
+                  className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                    form.agent_id === agent.id
+                      ? "border-[#a4c8e0] bg-[#a4c8e0]/10"
+                      : "border-border hover:border-[#a4c8e0]/40 hover:bg-muted/30"
+                  }`}
+                >
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                    form.agent_id === agent.id ? "bg-[#a4c8e0]/20" : "bg-muted"
+                  }`}>
+                    <User size={16} className={form.agent_id === agent.id ? "text-[#a4c8e0]" : "text-muted-foreground"} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className={`text-sm font-semibold truncate ${form.agent_id === agent.id ? "text-white" : "text-muted-foreground"}`}>
+                      {agent.name}
+                      {agent.is_default && <span className="ml-1.5 text-[10px] text-[#a4c8e0]">default</span>}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground truncate">{agent.whatsapp_number}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+          {selectedAgent && (
+            <p className="text-[11px] text-muted-foreground mt-3">
+              Visitors will see WhatsApp & Call buttons connected to <strong className="text-white">{selectedAgent.name}</strong>
+            </p>
+          )}
         </section>
 
         {/* ── Unit Details ── */}
