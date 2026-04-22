@@ -17,6 +17,7 @@ const BLANK: Partial<Listing> = {
   show_price: true, show_downpayment: true, show_monthly: true,
   show_full_price: false, is_featured: false,
   whatsapp_number: "",
+  listing_type: "off-plan",
 };
 
 export default function ListingsAdmin() {
@@ -174,6 +175,34 @@ export default function ListingsAdmin() {
                   {field("whatsapp_number", "WhatsApp Number")}
                   {field("delivery_year", "Delivery Year", "number")}
                 </div>
+              </section>
+
+              {/* ── Listing Type ── */}
+              <section>
+                <p className="text-xs font-semibold text-[#a4c8e0] uppercase tracking-widest mb-3">Listing Type</p>
+                <div className="flex gap-3">
+                  {(["off-plan", "ready"] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, listing_type: t }))}
+                      className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
+                        form.listing_type === t
+                          ? t === "off-plan"
+                            ? "bg-blue-600 border-blue-600 text-white"
+                            : "bg-emerald-500 border-emerald-500 text-white"
+                          : "border-border text-muted-foreground hover:border-[#a4c8e0]/50 hover:text-white"
+                      }`}
+                    >
+                      {t === "off-plan" ? "🏗️ Off Plan" : "✅ Ready"}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-2">
+                  {form.listing_type === "off-plan"
+                    ? "Unit is under construction / future delivery"
+                    : "Unit is ready to move in"}
+                </p>
               </section>
 
               {/* ── Unit Details ── */}

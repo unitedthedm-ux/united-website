@@ -24,6 +24,7 @@ export interface Listing {
   show_full_price: boolean;
   is_featured: boolean;
   whatsapp_number?: string;
+  listing_type?: "off-plan" | "ready"; // "off-plan" = under construction, "ready" = completed
   created_at: string;
 }
 
@@ -42,9 +43,16 @@ export interface ResaleUnit {
   compound_name?: string;
   region?: string;
   area?: string;
+  neighborhood?: string;
   images: string[];
   owner_name?: string;
   show_price: boolean;
+  show_downpayment?: boolean;
+  show_monthly?: boolean;
+  show_full_price?: boolean;
+  down_payment?: number;
+  monthly_payment?: number;
+  delivery_year?: number;
   is_featured: boolean;
   whatsapp_number?: string;
   created_at: string;
