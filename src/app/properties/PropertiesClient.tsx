@@ -6,14 +6,17 @@ import { useLocale } from "@/context/LocaleContext";
 import PropertyCard from "@/components/property/PropertyCard";
 import type { Listing, ResaleUnit } from "@/types";
 
+// Region filter pills — match against listing.neighborhood (district level)
+// or listing.area — whichever is set when creating the listing
 const REGIONS = [
   { slug: "", labelEn: "All Areas", labelAr: "كل المناطق" },
-  { slug: "new-capital", labelEn: "New Capital", labelAr: "العاصمة الإدارية" },
-  { slug: "new-cairo", labelEn: "New Cairo", labelAr: "القاهرة الجديدة" },
-  { slug: "north-coast", labelEn: "North Coast", labelAr: "الساحل الشمالي" },
-  { slug: "sheikh-zayed", labelEn: "Sheikh Zayed", labelAr: "الشيخ زايد" },
-  { slug: "6th-october", labelEn: "6th of October", labelAr: "السادس من أكتوبر" },
-  { slug: "el-alamein", labelEn: "El Alamein", labelAr: "العلمين" },
+  { slug: "East Cairo", labelEn: "East Cairo", labelAr: "شرق القاهرة" },
+  { slug: "North Coast", labelEn: "North Coast", labelAr: "الساحل الشمالي" },
+  { slug: "Sheikh Zayed & 6th October", labelEn: "Sheikh Zayed", labelAr: "الشيخ زايد" },
+  { slug: "Alexandria Areas", labelEn: "Alexandria", labelAr: "الإسكندرية" },
+  { slug: "Ain Sokhna", labelEn: "Ain Sokhna", labelAr: "عين السخنة" },
+  { slug: "Red Sea Areas", labelEn: "Red Sea", labelAr: "البحر الأحمر" },
+  { slug: "South Sinai", labelEn: "Sharm El-Sheikh", labelAr: "شرم الشيخ" },
 ];
 
 type Tab = "listings" | "resale";
@@ -37,9 +40,18 @@ export default function PropertiesClient({
   const filteredListings = useMemo(() => {
     return listings.filter((l) => {
       const title = locale === "ar" ? l.title_ar : l.title_en;
-      const matchRegion = !region || l.region === region;
-      const matchQuery = !query || title.toLowerCase().includes(query.toLowerCase()) ||
-        (l.compound_name ?? "").toLowerCase().includes(query.toLowerCase());
+      // Match against neighborhood (district), area, or region (governorate)
+      const matchRegion =
+        !region ||
+        l.neighborhood === region ||
+        l.area === region ||
+        l.region === region;
+      const matchQuery =
+        !query ||
+        title.toLowerCase().includes(query.toLowerCase()) ||
+        (l.compound_name ?? "").toLowerCase().includes(query.toLowerCase()) ||
+        (l.area ?? "").toLowerCase().includes(query.toLowerCase()) ||
+        (l.neighborhood ?? "").toLowerCase().includes(query.toLowerCase());
       return matchRegion && matchQuery;
     });
   }, [listings, region, query, locale]);
@@ -47,9 +59,16 @@ export default function PropertiesClient({
   const filteredResale = useMemo(() => {
     return resaleUnits.filter((u) => {
       const title = locale === "ar" ? u.title_ar : u.title_en;
-      const matchRegion = !region || u.region === region;
-      const matchQuery = !query || title.toLowerCase().includes(query.toLowerCase()) ||
-        (u.compound_name ?? "").toLowerCase().includes(query.toLowerCase());
+      const matchRegion =
+        !region ||
+        (u as unknown as { neighborhood?: string }).neighborhood === region ||
+        u.area === region ||
+        u.region === region;
+      const matchQuery =
+        !query ||
+        title.toLowerCase().includes(query.toLowerCase()) ||
+        (u.compound_name ?? "").toLowerCase().includes(query.toLowerCase()) ||
+        (u.area ?? "").toLowerCase().includes(query.toLowerCase());
       return matchRegion && matchQuery;
     });
   }, [resaleUnits, region, query, locale]);

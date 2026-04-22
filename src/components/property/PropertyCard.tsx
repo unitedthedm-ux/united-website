@@ -41,11 +41,12 @@ export default function PropertyCard({
     listing.finishing,
   ].filter(Boolean) as string[];
 
+  // Breadcrumb: region › neighborhood › area › compound (outer → inner)
   const locationParts = [
-    listing.compound_name,
+    listing.region,
     listing.neighborhood,
     listing.area,
-    listing.region,
+    listing.compound_name,
   ].filter(Boolean) as string[];
 
   const hasPriceTable =
