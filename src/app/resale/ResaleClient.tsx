@@ -53,7 +53,6 @@ export default function ResaleClient({ units }: { units: ResaleUnit[] }) {
             <PropertyCard
               key={u.id}
               listing={u as unknown as Listing}
-              href={`/resale/${u.id}`}
             />
           ))}
         </div>
