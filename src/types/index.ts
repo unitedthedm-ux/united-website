@@ -44,6 +44,7 @@ export interface ResaleUnit {
   area?: string;
   images: string[];
   owner_name?: string;
+  show_price: boolean;
   is_featured: boolean;
   whatsapp_number?: string;
   created_at: string;
