@@ -76,10 +76,10 @@ export default function Navbar() {
 
           {/* Mobile menu */}
           <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu size={20} />
-              </Button>
+            <SheetTrigger
+              render={<Button variant="ghost" size="icon" className="md:hidden" />}
+            >
+              <Menu size={20} />
             </SheetTrigger>
             <SheetContent side={rtl ? "right" : "left"} className="w-72">
               <div className="flex flex-col gap-6 pt-8">
