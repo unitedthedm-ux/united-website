@@ -31,7 +31,7 @@ export default function AdminLogin() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-[#a4c8e0] mb-2">UNITED</p>
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-border bg-card p-8">
           <div>

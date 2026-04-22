@@ -25,7 +25,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       <aside className="w-56 shrink-0 border-r border-border bg-card flex flex-col">
         <div className="px-6 py-5 border-b border-border">
           <p className="text-xs font-semibold uppercase tracking-widest text-[#a4c8e0]">UNITED</p>
-          <p className="text-sm font-medium mt-0.5">Admin</p>
+          <p className="text-sm font-medium mt-0.5 text-white">Admin</p>
         </div>
         <nav className="flex-1 p-3 space-y-1">
           {NAV.map(({ href, label, icon: Icon }) => (
