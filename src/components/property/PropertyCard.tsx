@@ -87,16 +87,16 @@ export default function PropertyCard({
           </div>
         )}
 
-        {/* Off-Plan / Ready badge (new listings only) */}
+        {/* From Developer / Resale badge */}
         {!isResale && (
           <div className={`absolute top-3 end-3 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide z-10 ${
-            listing.listing_type === "ready"
-              ? "bg-emerald-500 text-white"
+            listing.listing_type === "resale"
+              ? "bg-amber-500 text-white"
               : "bg-blue-600 text-white"
           }`}>
-            {listing.listing_type === "ready"
-              ? (locale === "ar" ? "جاهز" : "Ready")
-              : (locale === "ar" ? "قيد الإنشاء" : "Off Plan")}
+            {listing.listing_type === "resale"
+              ? (locale === "ar" ? "إعادة بيع" : "Resale")
+              : (locale === "ar" ? "من المطور" : "Developer")}
           </div>
         )}
 

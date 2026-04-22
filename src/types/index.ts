@@ -24,7 +24,7 @@ export interface Listing {
   show_full_price: boolean;
   is_featured: boolean;
   whatsapp_number?: string;
-  listing_type?: "off-plan" | "ready"; // "off-plan" = under construction, "ready" = completed
+  listing_type?: "from-developer" | "resale"; // "from-developer" = new unit, "resale" = secondary market
   created_at: string;
 }
 
