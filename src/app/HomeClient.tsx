@@ -121,7 +121,6 @@ export default function HomeClient({
                 <PropertyCard
                   key={u.id}
                   listing={u as unknown as Listing}
-                  href={`/resale/${u.id}`}
                 />
               ))}
             </div>
