@@ -24,6 +24,9 @@ interface Props {
   onChange: (v: LocationValues) => void;
 }
 
+const SELECT =
+  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-[#a4c8e0] transition-colors text-white";
+
 const INPUT =
   "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-[#a4c8e0] transition-colors text-white";
 
@@ -41,37 +44,40 @@ export default function LocationPicker({ values, onChange }: Props) {
 
   const [expanded, setExpanded] = useState(!hasExisting);
 
-  // Location nodes at each level
   const [governorates, setGovernorates] = useState<LocationNode[]>([]);
   const [districts, setDistricts] = useState<LocationNode[]>([]);
   const [areas, setAreas] = useState<LocationNode[]>([]);
   const [compounds, setCompounds] = useState<LocationNode[]>([]);
 
-  // Selected nodes
   const [selGov, setSelGov] = useState<LocationNode | null>(null);
   const [selDist, setSelDist] = useState<LocationNode | null>(null);
   const [selArea, setSelArea] = useState<LocationNode | null>(null);
   const [selCompound, setSelCompound] = useState<LocationNode | null>(null);
 
-  // Add compound form
   const [showAdd, setShowAdd] = useState(false);
   const [addEn, setAddEn] = useState("");
   const [addAr, setAddAr] = useState("");
   const [adding, setAdding] = useState(false);
 
-  // Load governorates once
+  // Load governorates and auto-select Cairo as default
   useEffect(() => {
-    fetchLocations(2).then(setGovernorates);
-  }, []);
+    fetchLocations(2).then((data) => {
+      setGovernorates(data);
 
-  // Auto-select when editing existing listing
-  useEffect(() => {
-    if (!governorates.length || !values.region) return;
-    const match = governorates.find(
-      (g) => g.name_en.toLowerCase() === values.region?.toLowerCase()
-    );
-    if (match) setSelGov(match);
-  }, [governorates, values.region]);
+      // If editing an existing listing, match the saved region
+      if (values.region) {
+        const match = data.find(
+          (g) => g.name_en.toLowerCase() === values.region?.toLowerCase()
+        );
+        if (match) { setSelGov(match); return; }
+      }
+
+      // Default to Cairo for new listings
+      const cairo = data.find((g) => g.name_en.toLowerCase().includes("cairo"));
+      if (cairo) setSelGov(cairo);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Load districts when gov changes
   useEffect(() => {
@@ -85,6 +91,7 @@ export default function LocationPicker({ values, onChange }: Props) {
         if (m) setSelDist(m);
       }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selGov]);
 
   // Load areas when district changes
@@ -99,6 +106,7 @@ export default function LocationPicker({ values, onChange }: Props) {
         if (m) setSelArea(m);
       }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selDist]);
 
   // Load compounds when area changes
@@ -113,9 +121,9 @@ export default function LocationPicker({ values, onChange }: Props) {
         if (m) setSelCompound(m);
       }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selArea]);
 
-  // Notify parent on selection change
   const notify = useCallback(
     (gov: LocationNode | null, dist: LocationNode | null, area: LocationNode | null, comp: LocationNode | null) => {
       onChange({
@@ -173,18 +181,11 @@ export default function LocationPicker({ values, onChange }: Props) {
     setAdding(false);
   }
 
-  // ── Breadcrumb preview ────────────────────────────────────────────────
-  const breadcrumb = [
-    "Egypt",
-    selGov?.name_en,
-    selDist?.name_en,
-    selArea?.name_en,
-    selCompound?.name_en,
-  ]
+  const breadcrumb = [selGov?.name_en, selDist?.name_en, selArea?.name_en, selCompound?.name_en]
     .filter(Boolean)
     .join(" › ");
 
-  // ── Collapsed summary (when existing values & not editing) ────────────
+  // ── Collapsed summary ─────────────────────────────────────────────────
   if (!expanded) {
     const summary = [values.compound_name, values.area, values.neighborhood, values.region]
       .filter(Boolean)
@@ -213,12 +214,6 @@ export default function LocationPicker({ values, onChange }: Props) {
   return (
     <div className="space-y-3">
 
-      {/* Country — fixed */}
-      <div>
-        <label className="block text-xs font-medium text-muted-foreground mb-1">Country</label>
-        <input value="Egypt 🇪🇬" disabled className={INPUT + " opacity-50 cursor-not-allowed"} />
-      </div>
-
       {/* Governorate */}
       <div>
         <label className="block text-xs font-medium text-muted-foreground mb-1">
@@ -230,7 +225,7 @@ export default function LocationPicker({ values, onChange }: Props) {
             const id = e.target.value;
             selectGov(governorates.find((g) => g.id === id) ?? null);
           }}
-          className={INPUT}
+          className={SELECT}
         >
           <option value="">— Select governorate —</option>
           {governorates.map((g) => (
@@ -251,7 +246,7 @@ export default function LocationPicker({ values, onChange }: Props) {
               const id = e.target.value;
               selectDist(districts.find((d) => d.id === id) ?? null);
             }}
-            className={INPUT}
+            className={SELECT}
           >
             <option value="">— Select district —</option>
             {districts.map((d) => (
@@ -273,7 +268,7 @@ export default function LocationPicker({ values, onChange }: Props) {
               const id = e.target.value;
               selectArea(areas.find((a) => a.id === id) ?? null);
             }}
-            className={INPUT}
+            className={SELECT}
           >
             <option value="">— Select area —</option>
             {areas.map((a) => (
@@ -298,7 +293,7 @@ export default function LocationPicker({ values, onChange }: Props) {
                 const id = e.target.value;
                 selectCompound(compounds.find((c) => c.id === id) ?? null);
               }}
-              className={INPUT}
+              className={SELECT}
             >
               <option value="">— No compound / select —</option>
               {compounds.map((c) => (
@@ -317,7 +312,6 @@ export default function LocationPicker({ values, onChange }: Props) {
             </button>
           </div>
 
-          {/* Add compound form */}
           {showAdd && (
             <div className="mt-2 rounded-xl border border-border bg-muted/30 p-4 space-y-3">
               <p className="text-xs font-semibold text-[#a4c8e0]">Add New Compound</p>
@@ -357,13 +351,12 @@ export default function LocationPicker({ values, onChange }: Props) {
       )}
 
       {/* Breadcrumb preview */}
-      {breadcrumb !== "Egypt" && (
+      {breadcrumb && (
         <div className="rounded-lg bg-[#a4c8e0]/5 border border-[#a4c8e0]/20 px-3 py-2">
           <p className="text-[11px] text-[#a4c8e0]">📍 {breadcrumb}</p>
         </div>
       )}
 
-      {/* Collapse button if editing */}
       {hasExisting && (
         <button
           type="button"

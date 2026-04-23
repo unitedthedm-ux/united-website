@@ -157,24 +157,14 @@ export default function TeamAdmin() {
 
               <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-1">Role</label>
-                <div className="flex gap-3">
-                  {(["agent", "admin"] as const).map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setForm((f) => ({ ...f, role: r }))}
-                      className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
-                        form.role === r
-                          ? r === "admin"
-                            ? "bg-[#a4c8e0] border-[#a4c8e0] text-[#0a2233]"
-                            : "bg-muted border-[#a4c8e0]/50 text-white"
-                          : "border-border text-muted-foreground hover:border-[#a4c8e0]/40"
-                      }`}
-                    >
-                      {r === "admin" ? "🛡️ Admin" : "👤 Agent"}
-                    </button>
-                  ))}
-                </div>
+                <select
+                  value={form.role ?? "agent"}
+                  onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as "agent" | "admin" }))}
+                  className={INPUT}
+                >
+                  <option value="agent">👤 Agent</option>
+                  <option value="admin">🛡️ Admin</option>
+                </select>
               </div>
 
               <div>

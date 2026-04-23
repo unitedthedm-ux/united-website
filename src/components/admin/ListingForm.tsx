@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, User } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
 import ImageUploader from "@/components/admin/ImageUploader";
 import LocationPicker from "@/components/admin/LocationPicker";
 import type { Listing, TeamMember } from "@/types";
@@ -151,25 +151,15 @@ export default function ListingForm({ initial, mode }: Props) {
         {/* ── Listing Type ── */}
         <section className="rounded-2xl border border-border bg-card p-6">
           <h2 className="text-sm font-semibold text-[#a4c8e0] uppercase tracking-widest mb-4">Listing Type</h2>
-          <div className="flex gap-3">
-            {(["from-developer", "resale"] as const).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => set("listing_type", t)}
-                className={`flex-1 py-3 rounded-xl border text-sm font-bold transition-all ${
-                  form.listing_type === t
-                    ? t === "from-developer"
-                      ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-900/30"
-                      : "bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-900/30"
-                    : "border-border text-muted-foreground hover:border-[#a4c8e0]/50 hover:text-white"
-                }`}
-              >
-                {t === "from-developer" ? "🏢 From Developer" : "🔄 Resale"}
-              </button>
-            ))}
-          </div>
-          <p className="text-[11px] text-muted-foreground mt-3">
+          <select
+            value={form.listing_type ?? "from-developer"}
+            onChange={(e) => set("listing_type", e.target.value as never)}
+            className={INPUT}
+          >
+            <option value="from-developer">🏢 From Developer</option>
+            <option value="resale">🔄 Resale</option>
+          </select>
+          <p className="text-[11px] text-muted-foreground mt-2">
             {form.listing_type === "resale"
               ? "Unit sold by an owner or investor on the secondary market"
               : "New unit sold directly by the developer"}
@@ -197,38 +187,25 @@ export default function ListingForm({ initial, mode }: Props) {
               <a href="/admin/team" className="text-[#a4c8e0] hover:underline">Add team members first →</a>
             </p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {agents.map((agent) => (
-                <button
-                  key={agent.id}
-                  type="button"
-                  onClick={() => set("agent_id", agent.id as never)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
-                    form.agent_id === agent.id
-                      ? "border-[#a4c8e0] bg-[#a4c8e0]/10"
-                      : "border-border hover:border-[#a4c8e0]/40 hover:bg-muted/30"
-                  }`}
-                >
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-                    form.agent_id === agent.id ? "bg-[#a4c8e0]/20" : "bg-muted"
-                  }`}>
-                    <User size={16} className={form.agent_id === agent.id ? "text-[#a4c8e0]" : "text-muted-foreground"} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className={`text-sm font-semibold truncate ${form.agent_id === agent.id ? "text-white" : "text-muted-foreground"}`}>
-                      {agent.name}
-                      {agent.is_default && <span className="ml-1.5 text-[10px] text-[#a4c8e0]">default</span>}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground truncate">{agent.whatsapp_number}</p>
-                  </div>
-                </button>
-              ))}
+            <div>
+              <select
+                value={form.agent_id ?? ""}
+                onChange={(e) => set("agent_id", e.target.value as never)}
+                className={INPUT}
+              >
+                <option value="">— No agent assigned —</option>
+                {agents.map((agent) => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.name}{agent.is_default ? " (default)" : ""} · {agent.whatsapp_number}
+                  </option>
+                ))}
+              </select>
+              {selectedAgent && (
+                <p className="text-[11px] text-muted-foreground mt-2">
+                  Visitors will see WhatsApp & Call buttons connected to <strong className="text-white">{selectedAgent.name}</strong>
+                </p>
+              )}
             </div>
-          )}
-          {selectedAgent && (
-            <p className="text-[11px] text-muted-foreground mt-3">
-              Visitors will see WhatsApp & Call buttons connected to <strong className="text-white">{selectedAgent.name}</strong>
-            </p>
           )}
         </section>
 
@@ -239,8 +216,45 @@ export default function ListingForm({ initial, mode }: Props) {
             {field("area_sqm", "Area (m²)", "number", "120")}
             {field("bedrooms", "Bedrooms", "number", "3")}
             {field("bathrooms", "Bathrooms", "number", "2")}
-            {field("unit_type", "Unit Type", "text", "Apartment / Villa / Chalet")}
-            {field("finishing", "Finishing", "text", "Fully Finished / Semi / Core & Shell")}
+
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Unit Type</label>
+              <select
+                value={form.unit_type ?? ""}
+                onChange={(e) => set("unit_type", e.target.value as never)}
+                className={INPUT}
+              >
+                <option value="">— Select type —</option>
+                <option value="Apartment">Apartment</option>
+                <option value="Villa">Villa</option>
+                <option value="Chalet">Chalet</option>
+                <option value="Townhouse">Townhouse</option>
+                <option value="Twin House">Twin House</option>
+                <option value="Penthouse">Penthouse</option>
+                <option value="Duplex">Duplex</option>
+                <option value="Studio">Studio</option>
+                <option value="Office">Office</option>
+                <option value="Shop">Shop</option>
+                <option value="Land">Land</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Finishing</label>
+              <select
+                value={form.finishing ?? ""}
+                onChange={(e) => set("finishing", e.target.value as never)}
+                className={INPUT}
+              >
+                <option value="">— Select finishing —</option>
+                <option value="Fully Finished">Fully Finished</option>
+                <option value="Semi Finished">Semi Finished</option>
+                <option value="Core & Shell">Core & Shell</option>
+                <option value="Furnished">Furnished</option>
+                <option value="Super Lux">Super Lux</option>
+                <option value="Ultra Lux">Ultra Lux</option>
+              </select>
+            </div>
           </div>
         </section>
 
