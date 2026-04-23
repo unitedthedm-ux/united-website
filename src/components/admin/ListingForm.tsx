@@ -130,6 +130,27 @@ export default function ListingForm({ initial, mode }: Props) {
     );
   }
 
+  function priceField(key: "price" | "down_payment" | "monthly_payment", label: string) {
+    const numVal = (form[key] as number) || 0;
+    const display = numVal === 0 ? "" : numVal.toLocaleString("en-US");
+    return (
+      <div>
+        <label className="block text-xs font-medium text-muted-foreground mb-1">{label}</label>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={display}
+          placeholder="0"
+          onChange={(e) => {
+            const raw = e.target.value.replace(/,/g, "").replace(/[^\d]/g, "");
+            set(key, (raw === "" ? 0 : parseInt(raw, 10)) as never);
+          }}
+          className={INPUT}
+        />
+      </div>
+    );
+  }
+
   function toggle(key: keyof Listing, label: string) {
     return (
       <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
@@ -321,9 +342,9 @@ export default function ListingForm({ initial, mode }: Props) {
         <section className="rounded-2xl border border-border bg-card p-6">
           <h2 className="text-sm font-semibold text-[#a4c8e0] uppercase tracking-widest mb-4">Pricing</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-            {field("price", "Full Price (EGP)", "number", "0")}
-            {field("down_payment", "Down Payment (EGP)", "number", "0")}
-            {field("monthly_payment", "Monthly Payment (EGP)", "number", "0")}
+            {priceField("price", "Full Price (EGP)")}
+            {priceField("down_payment", "Down Payment (EGP)")}
+            {priceField("monthly_payment", "Monthly Payment (EGP)")}
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-3">
             {toggle("show_price", "Show Price")}
