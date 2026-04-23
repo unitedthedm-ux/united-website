@@ -1,3 +1,31 @@
+export interface Developer {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url?: string;
+  website?: string;
+  description?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface Compound {
+  id: string;
+  name: string;
+  slug: string;
+  developer_id?: string;
+  developers?: Pick<Developer, "id" | "name" | "logo_url"> | null;
+  governorate?: string;
+  district?: string;
+  area?: string;
+  city_name?: string;
+  cover_image_url?: string;
+  description?: string;
+  is_active: boolean;
+  created_at: string;
+}
+
 export interface TeamMember {
   id: string;
   name: string;
@@ -36,6 +64,10 @@ export interface Listing {
   whatsapp_number?: string; // legacy — prefer agent_id
   agent_id?: string;
   team_members?: Pick<TeamMember, "id" | "name" | "whatsapp_number" | "phone_number"> | null;
+  compound_id?: string;
+  compounds?: Pick<Compound, "id" | "name"> | null;
+  developer_id?: string;
+  developers?: Pick<Developer, "id" | "name" | "logo_url"> | null;
   listing_type?: "from-developer" | "resale"; // "from-developer" = new unit, "resale" = secondary market
   created_at: string;
 }

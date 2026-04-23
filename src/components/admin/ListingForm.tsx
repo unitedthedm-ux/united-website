@@ -1,22 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Search, X } from "lucide-react";
 import ImageUploader from "@/components/admin/ImageUploader";
 import LocationPicker from "@/components/admin/LocationPicker";
-import type { Listing, TeamMember } from "@/types";
+import type { Listing, TeamMember, Compound } from "@/types";
 
 export const LISTING_BLANK: Partial<Listing> = {
   title_en: "", title_ar: "", description_en: "", description_ar: "",
   price: 0, down_payment: 0, monthly_payment: 0, area_sqm: 0,
   bedrooms: undefined, bathrooms: undefined, unit_type: "", finishing: "",
   delivery_year: undefined,
-  compound_name: "", region: "", area: "", neighborhood: "",
+  compound_name: "", compound_id: undefined,
+  region: "", area: "", neighborhood: "",
   images: [],
   show_price: true, show_downpayment: true, show_monthly: true,
   show_full_price: false, is_featured: false,
-  agent_id: undefined,
+  agent_id: undefined, developer_id: undefined,
   listing_type: "from-developer",
 };
 
@@ -35,6 +36,13 @@ export default function ListingForm({ initial, mode }: Props) {
   const [error, setError] = useState("");
   const [agents, setAgents] = useState<TeamMember[]>([]);
 
+  // Compound search
+  const [compoundQuery, setCompoundQuery] = useState(form.compound_name ?? "");
+  const [compoundResults, setCompoundResults] = useState<Compound[]>([]);
+  const [compoundOpen, setCompoundOpen] = useState(false);
+  const [compoundSearching, setCompoundSearching] = useState(false);
+  const compoundRef = useRef<HTMLDivElement>(null);
+
   // Load team members for agent selector
   useEffect(() => {
     fetch("/api/admin/team")
@@ -49,6 +57,57 @@ export default function ListingForm({ initial, mode }: Props) {
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Compound search debounce
+  useEffect(() => {
+    if (!compoundQuery.trim() || compoundQuery.length < 2) {
+      setCompoundResults([]);
+      setCompoundOpen(false);
+      return;
+    }
+    setCompoundSearching(true);
+    const t = setTimeout(() => {
+      fetch(`/api/compounds?search=${encodeURIComponent(compoundQuery)}`)
+        .then((r) => r.ok ? r.json() : [])
+        .then((data: Compound[]) => {
+          setCompoundResults(data);
+          setCompoundOpen(data.length > 0);
+          setCompoundSearching(false);
+        });
+    }, 250);
+    return () => clearTimeout(t);
+  }, [compoundQuery]);
+
+  // Close compound dropdown on outside click
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (compoundRef.current && !compoundRef.current.contains(e.target as Node)) {
+        setCompoundOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  function selectCompound(c: Compound) {
+    setForm((f) => ({
+      ...f,
+      compound_id: c.id,
+      compound_name: c.name,
+      developer_id: c.developer_id ?? f.developer_id,
+      region: c.governorate ?? f.region,
+      neighborhood: c.district ?? f.neighborhood,
+      area: c.area ?? f.area,
+    }));
+    setCompoundQuery(c.name);
+    setCompoundOpen(false);
+  }
+
+  function clearCompound() {
+    setForm((f) => ({ ...f, compound_id: undefined, compound_name: "" }));
+    setCompoundQuery("");
+    setCompoundResults([]);
+  }
 
   function set<K extends keyof Listing>(key: K, value: Listing[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -277,6 +336,65 @@ export default function ListingForm({ initial, mode }: Props) {
         {/* ── Location ── */}
         <section className="rounded-2xl border border-border bg-card p-6">
           <h2 className="text-sm font-semibold text-[#a4c8e0] uppercase tracking-widest mb-4">Location</h2>
+
+          {/* Compound search */}
+          <div className="mb-5">
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
+              Search Compound <span className="text-[10px] text-[#a4c8e0]">(auto-fills location)</span>
+            </label>
+            <div ref={compoundRef} className="relative">
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={compoundQuery}
+                  onChange={(e) => { setCompoundQuery(e.target.value); }}
+                  onFocus={() => compoundResults.length > 0 && setCompoundOpen(true)}
+                  placeholder="Type compound name… e.g. Marassi, Patio, Sarai"
+                  className={INPUT + " pl-9 pr-9"}
+                />
+                {compoundQuery && (
+                  <button onClick={clearCompound} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white">
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+
+              {/* Dropdown */}
+              {compoundOpen && (
+                <div className="absolute z-40 mt-1 w-full rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+                  {compoundSearching ? (
+                    <div className="px-4 py-3 text-xs text-muted-foreground">Searching…</div>
+                  ) : compoundResults.length === 0 ? (
+                    <div className="px-4 py-3 text-xs text-muted-foreground">No compounds found</div>
+                  ) : (
+                    compoundResults.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => selectCompound(c)}
+                        className="w-full text-left px-4 py-2.5 hover:bg-muted/50 transition-colors"
+                      >
+                        <p className="text-sm font-medium text-white">{c.name}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {[c.area, c.district, c.governorate].filter(Boolean).join(" · ") ||
+                           c.city_name ||
+                           (c.developers as {name?: string} | null)?.name ||
+                           "No location set"}
+                        </p>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+            {form.compound_id && (
+              <p className="text-[11px] text-emerald-400 mt-1.5">
+                ✓ Linked to compound — location fields auto-filled below
+              </p>
+            )}
+          </div>
+
           <LocationPicker
             values={{
               region: form.region,

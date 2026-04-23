@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Building2, PlaySquare, LogOut, LayoutDashboard, Users, MapPin } from "lucide-react";
+import { Building2, PlaySquare, LogOut, LayoutDashboard, Users, MapPin, Landmark, Home } from "lucide-react";
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/listings", label: "Listings", icon: Building2 },
+  { href: "/admin/developers", label: "Developers", icon: Landmark },
+  { href: "/admin/compounds", label: "Compounds", icon: Home },
   { href: "/admin/locations", label: "Locations", icon: MapPin },
   { href: "/admin/media", label: "Media", icon: PlaySquare },
   { href: "/admin/team", label: "Team", icon: Users },
