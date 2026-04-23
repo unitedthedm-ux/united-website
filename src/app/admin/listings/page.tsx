@@ -6,11 +6,20 @@ import { Plus, Pencil, Trash2, Star, MapPin } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import type { Listing } from "@/types";
 
+type Tab = "all" | "from-developer" | "resale";
+
+const TABS: { key: Tab; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "from-developer", label: "From Developer" },
+  { key: "resale", label: "Resale" },
+];
+
 export default function ListingsAdmin() {
   const router = useRouter();
   const [rows, setRows] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>("all");
 
   async function load() {
     setLoading(true);
@@ -27,12 +36,14 @@ export default function ListingsAdmin() {
     load();
   }
 
+  const filtered = tab === "all" ? rows : rows.filter((r) => r.listing_type === tab);
+
   return (
     <AdminShell>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold">Listings</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{rows.length} units</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{filtered.length} of {rows.length} units</p>
         </div>
         <button
           onClick={() => router.push("/admin/listings/new")}
@@ -42,10 +53,44 @@ export default function ListingsAdmin() {
         </button>
       </div>
 
+      {/* Tabs */}
+      <div className="flex items-center gap-1 mb-5 border-b border-border">
+        {TABS.map((t) => {
+          const count = t.key === "all" ? rows.length : rows.filter((r) => r.listing_type === t.key).length;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+                tab === t.key
+                  ? "border-[#a4c8e0] text-[#a4c8e0]"
+                  : "border-transparent text-muted-foreground hover:text-white"
+              }`}
+            >
+              {t.label}
+              <span className={`ml-1.5 text-[11px] px-1.5 py-0.5 rounded-full ${
+                tab === t.key ? "bg-[#a4c8e0]/15 text-[#a4c8e0]" : "bg-muted text-muted-foreground"
+              }`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
-      ) : rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No listings yet.</p>
+        <div className="space-y-2">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-12 rounded-xl border border-border bg-card animate-pulse" />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-2xl border border-border bg-card p-10 text-center">
+          <p className="text-muted-foreground text-sm">No {tab === "all" ? "" : tab === "resale" ? "resale " : "developer "}listings yet.</p>
+          <button onClick={() => router.push("/admin/listings/new")} className="mt-3 text-xs text-[#a4c8e0] hover:underline">
+            + Add one now
+          </button>
+        </div>
       ) : (
         <div className="rounded-xl border border-border overflow-hidden">
           <table className="w-full text-sm">
@@ -60,9 +105,9 @@ export default function ListingsAdmin() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
+              {filtered.map((r) => (
                 <tr key={r.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 font-medium">{r.title_en}</td>
+                  <td className="px-4 py-3 font-medium text-white">{r.title_en}</td>
                   <td className="px-4 py-3">
                     <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                       r.listing_type === "resale"
