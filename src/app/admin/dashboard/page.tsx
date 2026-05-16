@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Building2, Home, PlaySquare, Star, TrendingUp, Eye } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
+import BugReporter from "@/components/admin/BugReporter";
 
 interface Stats {
   totalListings: number;
@@ -146,6 +147,10 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="mt-8">
+            <BugReporter />
           </div>
         </>
       ) : null}
