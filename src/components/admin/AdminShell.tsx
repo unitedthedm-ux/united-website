@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Building2, PlaySquare, LogOut, LayoutDashboard, Users, MapPin, Landmark, Home } from "lucide-react";
+import { Building2, PlaySquare, LogOut, LayoutDashboard, Users, MapPin, Landmark, Home, BookOpen } from "lucide-react";
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -46,6 +46,15 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               {label}
             </Link>
           ))}
+          <a
+            href="/admin-guide.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            <BookOpen size={16} />
+            Guide
+          </a>
         </nav>
         <div className="p-3 border-t border-border">
           <button

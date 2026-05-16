@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Building2, Home, PlaySquare, Star, TrendingUp, Eye } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import BugReporter from "@/components/admin/BugReporter";
+import GuidePopup from "@/components/admin/GuidePopup";
 
 interface Stats {
   totalListings: number;
@@ -69,6 +70,7 @@ export default function DashboardPage() {
 
   return (
     <AdminShell>
+      <GuidePopup />
       <div className="mb-8">
         <h1 className="text-xl font-bold text-white">Dashboard</h1>
         <p className="text-xs text-muted-foreground mt-0.5">Overview of your content</p>
