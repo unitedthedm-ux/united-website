@@ -54,7 +54,7 @@ export default function Footer() {
               {t.nav.contact}
             </p>
             <a
-              href="https://wa.me/201000000000"
+              href="https://wa.me/201022222516"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-muted-foreground hover:text-[#a4c8e0] transition-colors"
@@ -62,7 +62,7 @@ export default function Footer() {
               WhatsApp
             </a>
             <a
-              href="https://instagram.com/unitedrealestate"
+              href="https://www.instagram.com/united_realestate_co"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-muted-foreground hover:text-[#a4c8e0] transition-colors"
@@ -70,7 +70,7 @@ export default function Footer() {
               Instagram
             </a>
             <a
-              href="https://facebook.com/unitedrealestate"
+              href="https://www.facebook.com/profile.php?id=61580277852676"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-muted-foreground hover:text-[#a4c8e0] transition-colors"

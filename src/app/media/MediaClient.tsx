@@ -69,7 +69,7 @@ export default function MediaClient({ videos }: { videos: MediaVideo[] }) {
         </p>
         <div className="flex items-center justify-center gap-4">
           <a
-            href="https://instagram.com/unitedrealestate"
+            href="https://www.instagram.com/united_realestate_co"
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-full border border-white/20 px-5 py-2 text-sm font-medium hover:bg-white/10 transition-colors"
@@ -77,7 +77,7 @@ export default function MediaClient({ videos }: { videos: MediaVideo[] }) {
             Instagram
           </a>
           <a
-            href="https://facebook.com/unitedrealestate"
+            href="https://www.facebook.com/profile.php?id=61580277852676"
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-full border border-white/20 px-5 py-2 text-sm font-medium hover:bg-white/10 transition-colors"

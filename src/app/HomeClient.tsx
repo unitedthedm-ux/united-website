@@ -159,7 +159,7 @@ export default function HomeClient({
               : "Chat with our team on WhatsApp right now."}
           </p>
           <a
-            href="https://wa.me/201000000000"
+            href="https://wa.me/201022222516"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-full bg-[#a4c8e0] px-8 py-3 text-sm font-semibold text-[#0a2233] hover:bg-[#cce3f0] transition-colors"
