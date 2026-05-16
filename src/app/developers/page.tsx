@@ -9,7 +9,7 @@ export default async function DevelopersPage() {
   const supabase = await createClient();
   const { data: developers } = await supabase
     .from("developers")
-    .select("id, name, slug, logo_url, website, description")
+    .select("id, name, slug, logo_url, website, description, is_active, created_at")
     .eq("is_active", true)
     .order("name");
 
